@@ -10,14 +10,10 @@ public class Worker extends Thread {
     @Override
     public void run() {
         while (!Thread.currentThread().isInterrupted()) {
-            try {
-                Task task = queue.poll();
-                if (task != null) {
-                    task.multiply();
-                    MatrixThreads.latch.countDown();
-                }
-            } catch (Exception e) {
-                continue;
+            Task task = queue.poll();
+            if (task != null) {
+                task.multiply();
+                MatrixThreads.latch.countDown();
             }
         }
     }

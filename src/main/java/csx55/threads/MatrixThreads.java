@@ -15,6 +15,7 @@ public class MatrixThreads {
         int matrixDimension = 0;
         int seed = 0;
         int blockSize = 1;
+        int latchSize = 0;
 
         long startTime, endTime;
         double xTime, yTime, zTime, totalTime;
@@ -29,8 +30,10 @@ public class MatrixThreads {
             threadPoolSize = Integer.parseInt(args[0]);
             matrixDimension = Integer.parseInt(args[1]);
             seed = Integer.parseInt(args[2]);
-            blockSize = (int) Math.ceil(matrixDimension * 0.1);
-            latch = new CountDownLatch(blockSize * 100);
+            blockSize = (int) Math.ceil(matrixDimension * 0.20);
+            
+            latchSize = blockSize == 1 ? matrixDimension * matrixDimension : (int) Math.ceil(matrixDimension / 0.20);
+            latch = new CountDownLatch(latchSize);
 
             //check for valid matrixDimension and pool size
             if (threadPoolSize < 1) {
@@ -90,7 +93,7 @@ public class MatrixThreads {
 
         //compute Y using C and D
         D.transpose();
-        latch = new CountDownLatch(blockSize * 100);
+        latch = new CountDownLatch(latchSize);
         startTime = System.nanoTime();
         for (int i = 0; i < matrixDimension; ++i) {
             for (int j = 0; j < matrixDimension; j+=blockSize) {
@@ -105,7 +108,7 @@ public class MatrixThreads {
 
         //compute Z using X and Y
         Y.transpose();
-        latch = new CountDownLatch(blockSize * 100);
+        latch = new CountDownLatch(latchSize);
         startTime = System.nanoTime();
         for (int i = 0; i < matrixDimension; ++i) {
             for (int j = 0; j < matrixDimension; j+=blockSize) {
