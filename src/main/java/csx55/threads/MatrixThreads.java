@@ -1,8 +1,10 @@
 package csx55.threads;
 
 import java.util.Random;
+import java.util.concurrent.CountDownLatch;
 
 public class MatrixThreads {
+    static CountDownLatch latch;
     public static void main(String[] args) throws InterruptedException {
         Matrix A, B, C, D, X, Y, Z;
         TaskQueue queue;
@@ -28,6 +30,7 @@ public class MatrixThreads {
             matrixDimension = Integer.parseInt(args[1]);
             seed = Integer.parseInt(args[2]);
             blockSize = (int) Math.ceil(matrixDimension * 0.1);
+            latch = new CountDownLatch(blockSize * 100);
 
             //check for valid matrixDimension and pool size
             if (threadPoolSize < 1) {
@@ -74,12 +77,12 @@ public class MatrixThreads {
         //compute X using A and B
         B.transpose();
         startTime = System.nanoTime();
-        for (int i = 0; i < matrixDimension; i++) {
+        for (int i = 0; i < matrixDimension; ++i) {
             for (int j = 0; j < matrixDimension; j+=blockSize) {
                 queue.offer(new Task(A, B, X, i, j, blockSize));
             }
         }
-        while (!queue.isEmpty()) {}//waiting until queue is empty
+        latch.await();
         endTime = System.nanoTime();
         xTime = (endTime - startTime) / BILLION;
         System.out.println("Calculation of matrix X (product of A and B) complete - sum of the elements in X is : " + X.getSum());
@@ -87,13 +90,14 @@ public class MatrixThreads {
 
         //compute Y using C and D
         D.transpose();
+        latch = new CountDownLatch(blockSize * 100);
         startTime = System.nanoTime();
-        for (int i = 0; i < matrixDimension; i++) {
+        for (int i = 0; i < matrixDimension; ++i) {
             for (int j = 0; j < matrixDimension; j+=blockSize) {
                 queue.offer(new Task(C, D, Y, i, j, blockSize));
             }
         }
-        while (!queue.isEmpty()) {}//waiting until queue is empty
+        latch.await();
         endTime = System.nanoTime();
         yTime = (endTime - startTime) / BILLION;
         System.out.println("Calculation of matrix Y (product of C and D) complete - sum of the elements in Y is : " + Y.getSum());
@@ -101,13 +105,14 @@ public class MatrixThreads {
 
         //compute Z using X and Y
         Y.transpose();
+        latch = new CountDownLatch(blockSize * 100);
         startTime = System.nanoTime();
-        for (int i = 0; i < matrixDimension; i++) {
+        for (int i = 0; i < matrixDimension; ++i) {
             for (int j = 0; j < matrixDimension; j+=blockSize) {
                 queue.offer(new Task(X, Y, Z, i, j, blockSize));
             }
         }
-        while (!queue.isEmpty()) {}//waiting until queue is empty
+        latch.await();
         endTime = System.nanoTime();
         zTime = (endTime - startTime) / BILLION;
         System.out.println("Calculation of matrix Z (product of X and Y) complete - sum of the elements in Z is : " + Z.getSum());

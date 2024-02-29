@@ -12,7 +12,10 @@ public class Worker extends Thread {
         while (!Thread.currentThread().isInterrupted()) {
             try {
                 Task task = queue.poll();
-                if (task != null) task.multiply();
+                if (task != null) {
+                    task.multiply();
+                    MatrixThreads.latch.countDown();
+                }
             } catch (Exception e) {
                 continue;
             }

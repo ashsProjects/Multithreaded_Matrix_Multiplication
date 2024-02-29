@@ -32,7 +32,7 @@ public class Matrix {
 
     public long getSum() {
         long sum = 0L;
-        for (int i = 0; i < matrix.length; i++) {
+        for (int i = 0; i < matrix.length; ++i) {
             sum += matrix[i];
         }
         return sum;
@@ -48,8 +48,8 @@ public class Matrix {
 
     public void transpose() {
         int[] transposed = new int[size * size];
-        for (int i = 0; i < size; i++) {
-            for (int j = 0; j < size; j++) {
+        for (int i = 0; i < size; ++i) {
+            for (int j = 0; j < size; ++j) {
                 transposed[i * size + j] = this.get(j, i);
             }
         }
